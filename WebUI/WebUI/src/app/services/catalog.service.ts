@@ -16,7 +16,7 @@ export class CatalogService {
   }
 
   getAllBooks(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}`);
+    return this.http.get<any[]>(`${this.apiUrl}/all`);
   }
 
 }

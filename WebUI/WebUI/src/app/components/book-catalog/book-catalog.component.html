@@ -1,0 +1,12 @@
+<h2>Books</h2>
+<ul class="book-list">
+  <li *ngFor="let book of books">{{ book.name }} - ${{ book.purchasePrice }}</li>
+</ul>
+
+<h3>Add New Book</h3>
+<div class="form">
+  <input placeholder="Name" [(ngModel)]="newBook.name" />
+  <input placeholder="Text" [(ngModel)]="newBook.text" />
+  <input type="number" placeholder="Price" [(ngModel)]="newBook.purchasePrice" />
+  <button (click)="addBook()">Add Book</button>
+</div>

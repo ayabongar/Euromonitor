@@ -1,0 +1,12 @@
+<h2>Users</h2>
+<ul class="user-list">
+  <li *ngFor="let user of users">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</li>
+</ul>
+
+<h3>Add New User</h3>
+<div class="form">
+  <input placeholder="Email" [(ngModel)]="newUser.email" />
+  <input placeholder="First Name" [(ngModel)]="newUser.firstName" />
+  <input placeholder="Last Name" [(ngModel)]="newUser.lastName" />
+  <button (click)="addUser()">Add User</button>
+</div>

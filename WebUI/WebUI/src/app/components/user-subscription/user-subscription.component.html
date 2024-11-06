@@ -1,0 +1,16 @@
+<h2>Subscriptions</h2>
+<div class="form">
+  <input type="number" placeholder="User ID" [(ngModel)]="userId" />
+  <button (click)="getUserSubscriptions()">View Subscriptions</button>
+</div>
+
+<ul class="subscription-list">
+  <li *ngFor="let sub of subscriptions">Book ID: {{ sub.bookId }}</li>
+</ul>
+
+<h3>Manage Subscription</h3>
+<div class="form">
+  <input type="number" placeholder="Book ID" [(ngModel)]="bookId" />
+  <button (click)="subscribe()">Subscribe</button>
+  <button (click)="unsubscribe()">Unsubscribe</button>
+</div>

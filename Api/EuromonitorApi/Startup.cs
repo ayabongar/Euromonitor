@@ -17,30 +17,42 @@ namespace EuromonitorApi
             Configuration = configuration;
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+       
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers(); // Adds controller services
-            services.AddScoped<Database>(); // Register the Database class for dependency injection
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowLocalhost",
+                    builder => builder
+                        .WithOrigins("http://localhost:4200")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
+            });
 
-            services.AddSingleton<IConfiguration>(Configuration); // Makes configuration available across the app
+            services.AddControllers(); 
+            services.AddScoped<Database>(); 
+
+            services.AddSingleton<IConfiguration>(Configuration); 
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+
+
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage(); // Developer-friendly error page in Development mode
-
+                app.UseDeveloperExceptionPage();
+                app.UseCors("AllowLocalhost");
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Euromonitor API V1");
-                   // c.RoutePrefix = string.Empty; 
+                   
                 });
             }
             else
@@ -49,13 +61,13 @@ namespace EuromonitorApi
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection(); // Redirects HTTP requests to HTTPS
-            app.UseRouting(); // Configures request routing
-            app.UseAuthorization(); // Enables authorization support
+            app.UseHttpsRedirection(); 
+            app.UseRouting(); 
+            app.UseAuthorization(); 
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers(); // Maps controller endpoints
+                endpoints.MapControllers();
             });
         }
     }
