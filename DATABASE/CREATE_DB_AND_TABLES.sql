@@ -1,0 +1,36 @@
+USE master;
+
+CREATE DATABASE Euromonitor;
+
+USE Euromonitor;
+
+CREATE TABLE Users (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Email NVARCHAR(255) NOT NULL UNIQUE,
+    FirstName NVARCHAR(100) NOT NULL,
+    LastName NVARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE Books (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(255) NOT NULL,
+    Text NVARCHAR(MAX),
+    PurchasePrice DECIMAL(10, 2) NOT NULL CHECK (PurchasePrice > 0)
+);
+
+
+CREATE TABLE Subscriptions (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT NOT NULL,
+    BookId INT NOT NULL,
+    SubscriptionDate DATETIME DEFAULT GETDATE(),
+    
+
+    CONSTRAINT FK_Subscription_User FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_Subscription_Book FOREIGN KEY (BookId) REFERENCES Books(Id) ON DELETE CASCADE,
+    
+    CONSTRAINT UQ_User_Book UNIQUE (UserId, BookId)
+);
+
+

@@ -1,43 +1,86 @@
+using EuromonitorApi.Db;
+using EuromonitorApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Net;
 
 namespace EuromonitorApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class SubscriptionController : ControllerBase
-    {
-        private static readonly Dictionary<int, List<int>> UserSubscriptions = new Dictionary<int, List<int>>();
+    {     
+        private readonly Database _database;
+
+        public SubscriptionController(Database database)
+        {
+            _database = database;
+        }
 
         [HttpPost("subscribe")]
-        public IActionResult Subscribe(int userId, int bookId)
+        public IActionResult Subscribe([FromBody] Subscription subscription )
         {
-            if (!UserSubscriptions.ContainsKey(userId))
-                UserSubscriptions[userId] = new List<int>();
+            try
+            {
+                var parameters = new[]
+                {
+                    new SqlParameter("@UserId", subscription.userId),
+                    new SqlParameter("@BookId", subscription.bookId),                   
+                 };
 
-            UserSubscriptions[userId].Add(bookId);
-            return Ok("Subscribed to book successfully.");
+                var dataTable = _database.ExecuteStoredProcedure("usp_Subscription_Insert", parameters);
+                int newSubscriptionId = Convert.ToInt32(dataTable.Rows[0][0]);
+
+                return Ok("Subscribed to book successfully.");
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error Subscribing: " + ex.Message);
+            }            
         }
 
         [HttpPost("unsubscribe")]
-        public IActionResult Unsubscribe(int userId, int bookId)
+        public IActionResult Unsubscribe([FromBody] Subscription subscription)
         {
-            if (UserSubscriptions.ContainsKey(userId) && UserSubscriptions[userId].Contains(bookId))
+            try
             {
-                UserSubscriptions[userId].Remove(bookId);
-                return Ok("Unsubscribed from book successfully.");
-            }
+                var parameters = new[]
+                {
+                    new SqlParameter("@UserId", subscription.userId),
+                    new SqlParameter("@BookId", subscription.bookId)
+                 };
 
-            return NotFound("Subscription not found.");
+                var dataTable = _database.ExecuteStoredProcedure("usp_Subscription_Delete", parameters);
+                int delId = Convert.ToInt32(dataTable.Rows[1][0]);
+
+                return Ok(new { deleted = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error unsubscribing: " + ex.Message);
+            }
         }
+
 
         [HttpGet("{userId}")]
-        public IActionResult GetUserSubscriptions(int userId)
+        public IActionResult GetUserSubscriptions([FromBody] Subscription subscription)
         {
-            if (UserSubscriptions.ContainsKey(userId))
-                return Ok(UserSubscriptions[userId]);
-
-            return NotFound("User has no subscriptions.");
+            try
+            {
+                var parameters = new[] { new SqlParameter("@UserId", subscription.userId) };
+   
+                var dataTable = _database.ExecuteStoredProcedure("usp_User_SelectAll", parameters);
+                var subscriptions = _database.ConvertDataTable<Subscription>(dataTable);
+                return Ok(subscriptions);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error fetching subscriptions: " + ex.Message);
+            }
         }
+
     }
 }
